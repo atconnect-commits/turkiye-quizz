@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Türkiye Bursları 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Raleway', sans-serif; }
+        .container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .card { background: white; border-radius: 1rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); padding: 2rem; max-width: 42rem; width: 100%; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3a8a 0%, #10b981 100%); }
+        .gradient-success { background: linear-gradient(135deg, #10b981 0%, #1e3a8a 100%); }
+        .gradient-error { background: linear-gradient(135deg, #e30a17 0%, #1e3a8a 100%); }
+        .text-blue { color: #1e3a8a; }
+        .text-red { color: #e30a17; }
+        .text-green { color: #10b981; }
+        .text-gray { color: #6b7280; }
+        .bg-green { background-color: #10b981; }
+        .bg-blue { background-color: #1e3a8a; }
+        .bg-red { background-color: #e30a17; }
+        .bg-orange { background-color: #f59e0b; }
+        input, select { width: 100%; padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-size: 1rem; transition: all 0.2s; font-family: 'Raleway', sans-serif; }
+        input:focus, select:focus { outline: none; border-color: #3b82f6; }
+        input.error, select.error { border-color: #ef4444; }
+        .error-msg { color: #ef4444; font-size: 0.875rem; margin-top: 0.25rem; }
+        .btn { width: 100%; padding: 1rem; border-radius: 0.5rem; font-weight: 700; color: white; border: none; cursor: pointer; transition: all 0.2s; }
+        .btn:hover:not(:disabled) { transform: scale(1.05); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .lang-btn { width: 48%; padding: 1.5rem; border-radius: 1rem; font-weight: 700; color: white; border: none; cursor: pointer; font-size: 1.25rem; transition: all 0.2s; }
+        .lang-btn:hover { transform: scale(1.05); }
+        .option-btn { width: 100%; padding: 1rem; text-align: left; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: white; cursor: pointer; font-weight: 500; transition: all 0.2s; margin-bottom: 0.75rem; }
+        .option-btn:hover { border-color: #3b82f6; background-color: #eff6ff; }
+        .progress-bar { width: 100%; height: 0.75rem; background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; }
+        .progress-fill { height: 100%; background-color: #10b981; transition: width 0.3s; }
+        .space-y-4 > * + * { margin-top: 1rem; }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .flex { display: flex; }
+        .justify-between { justify-content: space-between; }
+        .justify-center { justify-content: center; }
+        .gap-4 { gap: 1rem; }
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .label { display: block; font-size: 0.875rem; font-weight: 500; color: #374151; margin-bottom: 0.5rem; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .text-4xl { font-size: 2.25rem; }
+        .font-bold { font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <!-- Sélection de langue -->
+        <div v-if="stage === 'language'" class="container gradient-bg">
+            <div class="card">
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold mb-6 text-blue">AFRICA TÜRKIYE CONNECT</h1>
+                    <p class="text-xl text-gray mb-8">Select your language / Choisissez votre langue</p>
+                    <div class="flex justify-center gap-4">
+                        <button @click="setLanguage('fr')" class="lang-btn bg-blue">🇫🇷 Français</button>
+                        <button @click="setLanguage('en')" class="lang-btn bg-green">🇬🇧 English</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de contact -->
+        <div v-if="stage === 'contact'" class="container gradient-bg">
+            <div class="card">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold mb-2 text-blue">AFRICA TÜRKIYE CONNECT</h1>
+                    <p class="text-gray">{{ t.subtitle }}</p>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="label">{{ t.firstName }}</label>
+                        <input 
+                            type="text" 
+                            v-model="contactInfo.prenom" 
+                            :class="{ 'error': errors.prenom }"
+                            :placeholder="t.firstNamePlaceholder"
+                            @input="validatePrenom"
+                        />
+                        <p v-if="errors.prenom" class="error-msg">{{ errors.prenom }}</p>
+                    </div>
+                    <div>
+                        <label class="label">{{ t.email }}</label>
+                        <input 
+                            type="email" 
+                            v-model="contactInfo.email"
+                            :class="{ 'error': errors.email }"
+                            :placeholder="t.emailPlaceholder"
+                            @input="validateEmail"
+                        />
+                        <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
+                    </div>
+                    <div>
+                        <label class="label">{{ t.phone }}</label>
+                        <input 
+                            type="tel" 
+                            v-model="contactInfo.telephone"
+                            :class="{ 'error': errors.telephone }"
+                            :placeholder="t.phonePlaceholder"
+                            @input="validatePhone"
+                        />
+                        <p v-if="errors.telephone" class="error-msg">{{ errors.telephone }}</p>
+                        <p class="text-gray" style="font-size: 0.75rem; margin-top: 0.25rem">{{ t.phoneExample }}</p>
+                    </div>
+                    <button 
+                        @click="handleContactSubmit" 
+                        :disabled="!isFormValid"
+                        class="btn bg-green"
+                    >
+                        {{ t.startQuiz }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Introduction -->
+        <div v-if="stage === 'intro'" class="container gradient-bg">
+            <div class="card">
+                <div class="text-center">
+                    <h1 class="text-4xl font-bold mb-6 text-blue">{{ t.welcome }} {{ contactInfo.prenom }} !</h1>
+                    <div class="mb-8 text-left space-y-4 text-gray">
+                        <p>{{ t.intro1 }}</p>
+                        <p>{{ t.intro2 }}</p>
+                        <p class="text-xl font-bold text-center text-red">{{ t.intro3 }}</p>
+                    </div>
+                    <button @click="stage = 'quiz'" class="btn bg-green">{{ t.startBtn }}</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions du Quiz -->
+        <div v-if="stage === 'quiz'" class="container gradient-bg">
+            <div class="card">
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2 text-blue">
+                        <span>{{ t.question }} {{ currentQuestion + 1 }} / {{ questions.length }}</span>
+                        <span>{{ Math.round(progress) }}%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" :style="{ width: progress + '%' }"></div>
+                    </div>
+                </div>
+                <h2 class="text-2xl font-bold mb-8 text-blue">{{ currentQ.question }}</h2>
+                
+                <!-- Select pour pays -->
+                <div v-if="currentQ.type === 'select-country'" class="space-y-4">
+                    <select v-model="textAnswer">
+                        <option value="">{{ t.selectCountry }}</option>
+                        <option v-for="country in countries" :key="country" :value="country">{{ country }}</option>
+                    </select>
+                    <button @click="handleTextAnswer" :disabled="!textAnswer" class="btn bg-green">{{ t.continue }}</button>
+                </div>
+
+                <!-- Select pour filières -->
+                <div v-else-if="currentQ.type === 'select-field'" class="space-y-4">
+                    <select v-model="textAnswer">
+                        <option value="">{{ t.selectField }}</option>
+                        <option v-for="field in fields" :key="field" :value="field">{{ field }}</option>
+                    </select>
+                    <button @click="handleTextAnswer" :disabled="!textAnswer" class="btn bg-green">{{ t.continue }}</button>
+                </div>
+
+                <!-- Options multiples -->
+                <div v-else>
+                    <button 
+                        v-for="(option, index) in currentQ.options" 
+                        :key="index"
+                        @click="handleAnswer(option)"
+                        class="option-btn"
+                    >
+                        {{ option }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Résultats -->
+        <div v-if="stage === 'result'" class="container" :class="result.eligible ? 'gradient-success' : 'gradient-error'">
+            <div class="card">
+                <div class="text-center mb-8">
+                    <div style="font-size: 80px; margin-bottom: 1rem">{{ result.eligible ? '✅' : '❌' }}</div>
+                    <h1 class="text-4xl font-bold mb-4">
+                        {{ result.eligible ? t.congratulations : t.sorry }} {{ contactInfo.prenom }} !
+                    </h1>
+                    
+                    <div v-if="result.eligible" class="space-y-6 text-left">
+                        <p class="text-xl text-center">{{ t.eligible }}</p>
+                        <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 0.5rem; padding: 1.5rem;">
+                            <h3 class="font-bold mb-4 text-green">{{ t.profileSummary }}</h3>
+                            <ul style="list-style: none; padding: 0;">
+                                <li style="margin-bottom: 0.5rem;">✓ {{ t.ageOk }}</li>
+                                <li style="margin-bottom: 0.5rem;">✓ {{ t.gradeOk }}</li>
+                                <li>✓ {{ t.motivationOk }}</li>
+                            </ul>
+                        </div>
+                        <div class="text-center space-y-4">
+                            <p class="text-gray font-bold">{{ t.timeToStart }}</p>
+                            <a href="https://www.dropbox.com/scl/fi/raxjxfht8pfu1fzqln9nw/MON-WORKBOOK-3-YTB-fr.pdf?rlkey=zt3ucln52khwo3pitiq3jxrni&st=th92pne6&dl=1" class="btn bg-orange" style="display: inline-block; width: auto; padding: 1rem 2rem;">
+                                📥 {{ t.downloadWorkbook }}
+                            </a>
+                            <p class="text-gray font-bold">{{ t.applyingThisYear }}</p>
+                            <a href="https://decrochetabourseturque.tilda.ws/" target="_blank" class="btn bg-red" style="display: inline-block; width: auto; padding: 1rem 2rem;">
+                                {{ t.checkProgram }}
+                            </a>
+                            <a href="https://facebook.com/africaturkiyeconnect" target="_blank" class="btn bg-blue" style="display: inline-block; width: auto; padding: 1rem 2rem;">
+                                📘 {{ t.joinCommunity }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div v-else class="space-y-6 text-left">
+                        <p class="text-xl text-center">{{ t.notEligible }}</p>
+                        <div v-if="result.reasons.length" style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 0.5rem; padding: 1.5rem;">
+                            <h3 class="font-bold mb-4 text-red">{{ t.why }}</h3>
+                            <ul>
+                                <li v-for="(reason, i) in result.reasons" :key="i">{{ reason }}</li>
+                            </ul>
+                        </div>
+                        <div style="background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 0.5rem; padding: 1.5rem;">
+                            <h3 class="font-bold mb-4 text-blue">{{ t.ourAdvice }}</h3>
+                            <p>{{ getAdviceText() }}</p>
+                        </div>
+                        <div class="text-center space-y-4">
+                            <a href="https://facebook.com/africaturkiyeconnect" target="_blank" class="btn bg-blue" style="display: inline-block; width: auto; padding: 1rem 2rem;">
+                                📘 {{ t.joinCommunity }}
+                            </a>
+                            <p class="text-gray font-bold">{{ t.yourTurn }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    stage: 'language',
+                    language: 'fr',
+                    contactInfo: { prenom: '', email: '', telephone: '' },
+                    errors: { prenom: '', email: '', telephone: '' },
+                    currentQuestion: 0,
+                    answers: {},
+                    textAnswer: '',
+                    result: null,
+                    countries: ['Bénin', 'Togo', 'Côte d\'Ivoire', 'Sénégal', 'Cameroun', 'Mali', 'Burkina Faso', 'Niger', 'Tchad', 'Gabon', 'Congo', 'RDC', 'Madagascar'],
+                    fieldsFr: ['Médecine', 'Médecine Dentaire', 'Pharmacie', 'Sciences Infirmières', 'Ingénierie Informatique', 'Génie Civil', 'Génie Électrique', 'Génie Mécanique', 'Architecture', 'Économie', 'Gestion', 'Finance', 'Droit', 'Psychologie', 'Lettres'],
+                    fieldsEn: ['Medicine', 'Dentistry', 'Pharmacy', 'Nursing', 'Computer Engineering', 'Civil Engineering', 'Electrical Engineering', 'Mechanical Engineering', 'Architecture', 'Economics', 'Business Management', 'Finance', 'Law', 'Psychology', 'Letters']
+                };
+            },
+            computed: {
+                t() {
+                    return this.translations[this.language];
+                },
+                questions() {
+                    return this.getQuestions();
+                },
+                fields() {
+                    return this.language === 'fr' ? this.fieldsFr : this.fieldsEn;
+                },
+                currentQ() {
+                    return this.questions[this.currentQuestion];
+                },
+                progress() {
+                    return ((this.currentQuestion + 1) / this.questions.length) * 100;
+                },
+                isFormValid() {
+                    return this.contactInfo.prenom && this.contactInfo.email && this.contactInfo.telephone && !this.errors.prenom && !this.errors.email && !this.errors.telephone;
+                },
+                translations() {
+                    return {
+                        fr: {
+                            subtitle: "Quiz d'Éligibilité Türkiye Bursları 2026",
+                            firstName: "Prénom",
+                            firstNamePlaceholder: "Votre prénom",
+                            email: "Email",
+                            emailPlaceholder: "votre.email@exemple.com",
+                            phone: "Téléphone (avec indicatif)",
+                            phonePlaceholder: "+229 XX XX XX XX",
+                            phoneExample: "Exemple : +229 97 12 34 56",
+                            startQuiz: "Commencer le Quiz",
+                            welcome: "Bienvenue",
+                            intro1: "Tu rêves d'étudier en Turquie ? Ce quiz détermine ton éligibilité.",
+                            intro2: "15 questions, 5 minutes, et tu sauras si tu peux postuler.",
+                            intro3: "Prêt(e) ? C'est parti !",
+                            startBtn: "Démarrer le Quiz",
+                            question: "Question",
+                            continue: "Continuer",
+                            selectCountry: "Sélectionnez votre pays",
+                            selectField: "Sélectionnez votre filière",
+                            congratulations: "Félicitations",
+                            sorry: "Désolé",
+                            eligible: "Ton profil est ÉLIGIBLE !",
+                            notEligible: "Ton profil ne correspond pas encore.",
+                            profileSummary: "Résumé :",
+                            ageOk: "Âge : Conforme",
+                            gradeOk: "Moyenne : Suffisante",
+                            motivationOk: "Motivation : Solide",
+                            timeToStart: "IL EST TEMPS DE COMMENCER À ÉCRIRE TA LETTRE DE MOTIVATION",
+                            downloadWorkbook: "TÉLÉCHARGE CE WORKBOOK POUR COMMENCER",
+                            applyingThisYear: "TU POSTULES CETTE ANNÉE ?",
+                            checkProgram: "CHECK ICI, C'EST CADEAU",
+                            joinCommunity: "REJOINS LA COMMUNAUTÉ POUR NE RIEN MANQUER",
+                            why: "Pourquoi ?",
+                            ourAdvice: "Notre conseil :",
+                            yourTurn: "Ton tour viendra !",
+                            errorPrenom: "Min 2 caractères",
+                            errorEmail: "Email invalide",
+                            errorPhone: "Format: +XXX XXXXXXXXX",
+                            adviceAge: "Suis-nous pour d'autres options !",
+                            adviceMotivation: "Revois ta motivation.",
+                            adviceGrade: "Améliore ta moyenne !",
+                            adviceDefault: "Ne lâche rien !"
+                        },
+                        en: {
+                            subtitle: "Türkiye Bursları 2026 Eligibility Quiz",
+                            firstName: "First Name",
+                            firstNamePlaceholder: "Your first name",
+                            email: "Email",
+                            emailPlaceholder: "your.email@example.com",
+                            phone: "Phone (with country code)",
+                            phonePlaceholder: "+229 XX XX XX XX",
+                            phoneExample: "Example: +229 97 12 34 56",
+                            startQuiz: "Start Quiz",
+                            welcome: "Welcome",
+                            intro1: "Dream of studying in Turkey? This quiz determines your eligibility.",
+                            intro2: "15 questions, 5 minutes, and you'll know if you can apply.",
+                            intro3: "Ready? Let's go!",
+                            startBtn: "Start Quiz",
+                            question: "Question",
+                            continue: "Continue",
+                            selectCountry: "Select your country",
+                            selectField: "Select your field",
+                            congratulations: "Congratulations",
+                            sorry: "Sorry",
+                            eligible: "Your profile is ELIGIBLE!",
+                            notEligible: "Your profile doesn't meet criteria yet.",
+                            profileSummary: "Summary:",
+                            ageOk: "Age: OK",
+                            gradeOk: "Grade: OK",
+                            motivationOk: "Motivation: Strong",
+                            timeToStart: "IT'S TIME TO START WRITING YOUR MOTIVATION LETTER",
+                            downloadWorkbook: "DOWNLOAD THIS WORKBOOK TO START",
+                            applyingThisYear: "APPLYING THIS YEAR?",
+                            checkProgram: "CHECK HERE, IT'S FREE",
+                            joinCommunity: "JOIN THE COMMUNITY TO MISS NOTHING",
+                            why: "Why?",
+                            ourAdvice: "Our advice:",
+                            yourTurn: "Your turn will come!",
+                            errorPrenom: "Min 2 characters",
+                            errorEmail: "Invalid email",
+                            errorPhone: "Format: +XXX XXXXXXXXX",
+                            adviceAge: "Follow us for other options!",
+                            adviceMotivation: "Review your motivation.",
+                            adviceGrade: "Improve your grades!",
+                            adviceDefault: "Don't give up!"
+                        }
+                    };
+                }
+            },
+            methods: {
+                setLanguage(lang) {
+                    this.language = lang;
+                    this.stage = 'contact';
+                },
+                validatePrenom() {
+                    const prenom = this.contactInfo.prenom.trim();
+                    if (prenom.length < 2) {
+                        this.errors.prenom = this.t.errorPrenom;
+                    } else if (!/^[a-zA-ZÀ-ÿ\s-]+$/.test(prenom)) {
+                        this.errors.prenom = 'Invalid';
+                    } else {
+                        this.errors.prenom = '';
+                    }
+                },
+                validateEmail() {
+                    const email = this.contactInfo.email.trim();
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        this.errors.email = this.t.errorEmail;
+                    } else {
+                        this.errors.email = '';
+                    }
+                },
+                validatePhone() {
+                    const phone = this.contactInfo.telephone.trim();
+                    const phoneRegex = /^\+\d{1,4}\s?\d{8,15}$/;
+                    if (!phoneRegex.test(phone)) {
+                        this.errors.telephone = this.t.errorPhone;
+                    } else {
+                        this.errors.telephone = '';
+                    }
+                },
+                handleContactSubmit() {
+                    if (this.isFormValid) {
+                        this.stage = 'intro';
+                    }
+                },
+                getQuestions() {
+                    if (this.language === 'fr') {
+                        return [
+                            { question: "Quel diplôme vises-tu en Turquie ?", options: ["Licence (Bachelor)", "Master", "Doctorat (PhD)"], key: "diplome" },
+                            { question: "Quel âge as-tu actuellement ?", options: ["Moins de 21 ans", "21-29 ans", "30-34 ans", "35 ans ou plus"], key: "age" },
+                            { question: "Quelle est ta moyenne générale ?", options: ["90% ou plus", "75-89%", "70-74%", "Moins de 70%"], key: "moyenne" },
+                            { question: "Quel domaine d'études t'intéresse ?", type: "select-field", key: "domaine" },
+                            { question: "Quelle est ta nationalité ?", type: "select-country", key: "nationalite" },
+                            { question: "As-tu un vide dans ton parcours académique ?", options: ["Non, parcours continu", "Oui, moins d'1 an", "Oui, 1-2 ans", "Oui, plus de 2 ans"], key: "gap" },
+                            { question: "Si tu as un vide, qu'as-tu fait pendant ce temps ?", options: ["Pas de vide", "Stage/Travail dans mon domaine", "Problèmes de santé/familiaux", "Rien de particulier"], key: "gapJustification" },
+                            { question: "Ton dernier diplôme date de quand ?", options: ["Cette année", "Il y a 1-2 ans", "Il y a 3-4 ans", "Il y a plus de 5 ans"], key: "dernierDiplome" },
+                            { question: "As-tu déjà postulé à Türkiye Bursları avant ?", options: ["Non, première fois", "Oui, 1 fois", "Oui, 2 fois", "Oui, 3 fois ou plus"], key: "dejaPostule" },
+                            { question: "Si oui, pourquoi tu n'as pas été retenu(e) ?", options: ["Jamais postulé", "Dossier incomplet", "Entretien raté", "Je ne sais pas"], key: "raisonEchec" },
+                            { question: "Pourquoi précisément la Turquie et pas un autre pays ?", options: ["Qualité des universités turques", "Secteurs innovants (tech, ingénierie, santé)", "Expérience multiculturelle unique", "C'est gratuit"], key: "pourquoiTurquie" },
+                            { question: "Qu'est-ce que tu connais de la Turquie ?", options: ["Histoire et culture", "Système éducatif", "Économie et innovation", "Presque rien"], key: "connaissanceTurquie" },
+                            { question: "Que comptes-tu faire APRÈS tes études ?", options: ["Travailler dans mon pays", "Créer mon entreprise", "Poursuivre en recherche", "Trouver un emploi à l'étranger"], key: "apresEtudes" },
+                            { question: "Vas-tu retourner dans ton pays après ?", options: ["Oui, c'est mon engagement", "Oui, probablement", "Je ne sais pas encore", "Non, je veux rester en Turquie"], key: "retourPays" },
+                            { question: "Comment ce diplôme va servir ton pays/communauté ?", options: ["Transférer des compétences rares", "Développer un secteur clé", "Former d'autres personnes", "Je n'ai pas encore réfléchi"], key: "impactPays" }
+                        ];
+                    } else {
+                        return [
+                            { question: "What degree are you pursuing in Turkey?", options: ["Bachelor", "Master", "PhD"], key: "diplome" },
+                            { question: "How old are you currently?", options: ["Under 21", "21-29 years", "30-34 years", "35 or older"], key: "age" },
+                            { question: "What is your GPA?", options: ["90% or more", "75-89%", "70-74%", "Less than 70%"], key: "moyenne" },
+                            { question: "What field of study interests you?", type: "select-field", key: "domaine" },
+                            { question: "What is your nationality?", type: "select-country", key: "nationalite" },
+                            { question: "Do you have a gap in your academic journey?", options: ["No, continuous", "Yes, less than 1 year", "Yes, 1-2 years", "Yes, more than 2 years"], key: "gap" },
+                            { question: "If yes, what did you do during that time?", options: ["No gap", "Internship/Work in my field", "Health/family issues", "Nothing particular"], key: "gapJustification" },
+                            { question: "When did you get your last degree?", options: ["This year", "1-2 years ago", "3-4 years ago", "More than 5 years ago"], key: "dernierDiplome" },
+                            { question: "Have you applied to Türkiye Bursları before?", options: ["No, first time", "Yes, once", "Yes, twice", "Yes, 3 times or more"], key: "dejaPostule" },
+                            { question: "If yes, why weren't you selected?", options: ["Never applied", "Incomplete application", "Failed interview", "I don't know"], key: "raisonEchec" },
+                            { question: "Why Turkey specifically and not another country?", options: ["Quality of Turkish universities", "Innovative sectors (tech, engineering, health)", "Unique multicultural experience", "It's free"], key: "pourquoiTurquie" },
+                            { question: "What do you know about Turkey?", options: ["History and culture", "Education system", "Economy and innovation", "Almost nothing"], key: "connaissanceTurquie" },
+                            { question: "What will you do AFTER your studies?", options: ["Work in my country", "Start my business", "Continue in research", "Find a job abroad"], key: "apresEtudes" },
+                            { question: "Will you return to your country after?", options: ["Yes, it's my commitment", "Yes, probably", "I don't know yet", "No, I want to stay in Turkey"], key: "retourPays" },
+                            { question: "How will this degree serve your country/community?", options: ["Transfer rare skills", "Develop a key sector", "Train other people", "I haven't thought about it"], key: "impactPays" }
+                        ];
+                    }
+                },
+                handleAnswer(answer) {
+                    this.answers[this.currentQ.key] = answer;
+                    this.nextQuestion();
+                },
+                handleTextAnswer() {
+                    if (this.textAnswer.trim()) {
+                        this.answers[this.currentQ.key] = this.textAnswer.trim();
+                        this.textAnswer = '';
+                        this.nextQuestion();
+                    }
+                },
+                nextQuestion() {
+                    if (this.currentQuestion < this.questions.length - 1) {
+                        this.currentQuestion++;
+                    } else {
+                        this.evaluateAnswers();
+                    }
+                },
+                evaluateAnswers() {
+                    const reasons = [];
+                    let eligible = true;
+                    let failureType = '';
+
+                    if (this.answers.diplome === "Licence" && this.answers.age !== "Moins de 21 ans") {
+                        eligible = false;
+                        failureType = 'age';
+                        reasons.push(this.language === 'fr' ? "Âge > 21 pour licence" : "Age > 21 for Bachelor");
+                    }
+
+                    if (this.answers.pourquoiTurquie === "C'est gratuit" || this.answers.pourquoiTurquie === "It's free") {
+                        eligible = false;
+                        failureType = 'motivation';
+                        reasons.push(this.language === 'fr' ? "Motivation insuffisante" : "Poor motivation");
+                    }
+
+                    this.result = { eligible, reasons, failureType };
+                    this.stage = 'result';
+                    this.sendToAirtable(eligible);
+                },
+                async sendToAirtable(eligible) {
+                    try {
+                        await fetch('https://api.airtable.com/v0/app2WLCxGt7v6qvyz/tbl3qppdI6au8ErUa', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': 'Bearer patfLFpkuz6QJG23N.cc166687861647d78ae57656d082ae9a5849aed7fb7b5143a057346a68b9e6ed',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                fields: {
+                                    'Prenom': this.contactInfo.prenom,
+                                    'Email': this.contactInfo.email,
+                                    'Num': this.contactInfo.telephone,
+                                    'Pays': this.answers.nationalite || 'N/A',
+                                    'Eligible': eligible ? 'OUI' : 'NON'
+                                }
+                            })
+                        });
+                    } catch (error) {
+                        console.error('Erreur:', error);
+                    }
+                },
+                getAdviceText() {
+                    const type = this.result.failureType;
+                    if (type === 'age') return this.t.adviceAge;
+                    if (type === 'motivation') return this.t.adviceMotivation;
+                    if (type === 'moyenne') return this.t.adviceGrade;
+                    return this.t.adviceDefault;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
