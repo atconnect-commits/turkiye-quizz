@@ -100,6 +100,7 @@
                             @input="validateEmail"
                         />
                         <p v-if="errors.email" class="error-msg">{{ errors.email }}</p>
+                        <p class="text-gray" style="font-size: 0.75rem; margin-top: 0.25rem">{{ t.emailGift }}</p>
                     </div>
                     <div>
                         <label class="label">{{ t.phone }}</label>
@@ -304,6 +305,7 @@
                             firstNamePlaceholder: "Votre prénom",
                             email: "Email",
                             emailPlaceholder: "votre.email@exemple.com",
+                            emailGift: "🎁 Un cadeau exclusif sera envoyé à cette adresse",
                             phone: "Téléphone (avec indicatif)",
                             phonePlaceholder: "+229 XX XX XX XX",
                             phoneExample: "Exemple : +229 97 12 34 56",
@@ -347,6 +349,7 @@
                             firstNamePlaceholder: "Your first name",
                             email: "Email",
                             emailPlaceholder: "your.email@example.com",
+                            emailGift: "🎁 An exclusive gift will be sent to this address",
                             phone: "Phone (with country code)",
                             phonePlaceholder: "+229 XX XX XX XX",
                             phoneExample: "Example: +229 97 12 34 56",
