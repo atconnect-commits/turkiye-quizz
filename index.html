@@ -206,11 +206,11 @@
                         </div>
                         <div class="text-center space-y-4">
                             <p class="text-gray font-bold">{{ t.timeToStart }}</p>
-                            <a href="https://www.dropbox.com/scl/fi/raxjxfht8pfu1fzqln9nw/MON-WORKBOOK-3-YTB-fr.pdf?rlkey=zt3ucln52khwo3pitiq3jxrni&st=th92pne6&dl=1" class="btn bg-orange" style="display: inline-block; width: auto; padding: 1rem 2rem;">
+                            <a :href="language === 'fr' ? 'https://www.dropbox.com/scl/fi/raxjxfht8pfu1fzqln9nw/MON-WORKBOOK-3-YTB-fr.pdf?rlkey=zt3ucln52khwo3pitiq3jxrni&st=th92pne6&dl=1' : 'https://www.dropbox.com/scl/fi/sdbf6v2ytpipv8pabzf6s/MY-WORKBOOK-3-YTB-EN-1.pdf?rlkey=7yx9itp2xt7y4w7672ubw0uo7&st=lhsj3bgl&dl=1'" class="btn bg-orange" style="display: inline-block; width: auto; padding: 1rem 2rem;">
                                 📥 {{ t.downloadWorkbook }}
                             </a>
                             <p class="text-gray font-bold">{{ t.applyingThisYear }}</p>
-                            <a href="https://decrochetabourseturque.tilda.ws/" target="_blank" class="btn bg-red" style="display: inline-block; width: auto; padding: 1rem 2rem;">
+                            <a :href="language === 'fr' ? 'https://decrochetabourseturque.tilda.ws/' : 'https://decrochetabourseturque.tilda.ws/eng'" target="_blank" class="btn bg-red" style="display: inline-block; width: auto; padding: 1rem 2rem;">
                                 {{ t.checkProgram }}
                             </a>
                             <a href="https://facebook.com/africaturkiyeconnect" target="_blank" class="btn bg-blue" style="display: inline-block; width: auto; padding: 1rem 2rem;">
@@ -258,6 +258,21 @@
                     textAnswer: '',
                     result: null,
                     countries: ['Bénin', 'Togo', 'Côte d\'Ivoire', 'Sénégal', 'Cameroun', 'Mali', 'Burkina Faso', 'Niger', 'Tchad', 'Gabon', 'Congo', 'RDC', 'Madagascar'],
+                    countryPhoneCodes: {
+                        'Bénin': '+229',
+                        'Togo': '+228',
+                        'Côte d\'Ivoire': '+225',
+                        'Sénégal': '+221',
+                        'Cameroun': '+237',
+                        'Mali': '+223',
+                        'Burkina Faso': '+226',
+                        'Niger': '+227',
+                        'Tchad': '+235',
+                        'Gabon': '+241',
+                        'Congo': '+242',
+                        'RDC': '+243',
+                        'Madagascar': '+261'
+                    },
                     fieldsFr: ['Médecine', 'Médecine Dentaire', 'Pharmacie', 'Sciences Infirmières', 'Ingénierie Informatique', 'Génie Civil', 'Génie Électrique', 'Génie Mécanique', 'Architecture', 'Économie', 'Gestion', 'Finance', 'Droit', 'Psychologie', 'Lettres'],
                     fieldsEn: ['Medicine', 'Dentistry', 'Pharmacy', 'Nursing', 'Computer Engineering', 'Civil Engineering', 'Electrical Engineering', 'Mechanical Engineering', 'Architecture', 'Economics', 'Business Management', 'Finance', 'Law', 'Psychology', 'Letters']
                 };
@@ -399,11 +414,24 @@
                 validatePhone() {
                     const phone = this.contactInfo.telephone.trim();
                     const phoneRegex = /^\+\d{1,4}\s?\d{8,15}$/;
+                    
                     if (!phoneRegex.test(phone)) {
                         this.errors.telephone = this.t.errorPhone;
-                    } else {
-                        this.errors.telephone = '';
+                        return;
                     }
+                    
+                    // Vérification de la cohérence indicatif/pays
+                    if (this.answers.nationalite) {
+                        const expectedCode = this.countryPhoneCodes[this.answers.nationalite];
+                        if (expectedCode && !phone.startsWith(expectedCode)) {
+                            this.errors.telephone = this.language === 'fr' 
+                                ? `L'indicatif doit correspondre à ${this.answers.nationalite} (${expectedCode})`
+                                : `Country code must match ${this.answers.nationalite} (${expectedCode})`;
+                            return;
+                        }
+                    }
+                    
+                    this.errors.telephone = '';
                 },
                 handleContactSubmit() {
                     if (this.isFormValid) {
@@ -456,6 +484,12 @@
                 handleTextAnswer() {
                     if (this.textAnswer.trim()) {
                         this.answers[this.currentQ.key] = this.textAnswer.trim();
+                        
+                        // Si c'est la question du pays, on revalide le téléphone
+                        if (this.currentQ.key === 'nationalite') {
+                            this.validatePhone();
+                        }
+                        
                         this.textAnswer = '';
                         this.nextQuestion();
                     }
